@@ -1,3 +1,4 @@
+from pickletools import string1
 from flask import Flask, request
 import json 
 import random
@@ -5,7 +6,7 @@ import requests
 app = Flask(__name__)
 app.debug = True
 
-print("Working")
+#print("Working")
 
 app= Flask(__name__)
 app.debug= True
@@ -15,7 +16,7 @@ app.debug= True
 def hello():
     return '{"Hello": "This is Vishal Kakkar - 200535056"}'
 
-@app.route('/webhook',methods=['POST'])
+@app.route('/webhook',methods=['POST','GET'])
 def index():
     #Get the geo-city entity from the dialogflow fullfilment request.
     body = request.json
@@ -24,14 +25,20 @@ def index():
         city= body['queryResult']['parameters']['geo-state']
 
 
-    #Connect to the API anf get the JSON file.
-    api_url='https://api.postalpincode.in/postoffice/'+ city
+    #city='Delhi'
+    #Connect to the API and get the JSON file.
+
+    
+    api_url='https://api.postalpincode.in/postoffice/' + city
     headers = {'Content-Type': 'application/json'} #Set the HTTP header for the API request
-    response = requests.get(api_url, headers=headers) #Connect to openweather and read the JSON response.
+    response = requests.get(api_url, headers=headers) #Connect to PostalAPI and read the JSON response.
     r=response.json() #Conver the JSON string to a dict for easier parsing.
 
     #Extract weather data we want from the dict and conver to strings to make it easy to generate the dialogflow reply.
-    Postalcode = str(r["PostOffice"]["Pincode"])
+    #Postalcode = str(r["PostOffice"]["Pincode"])
+
+    Postalcode=str(r[0]['PostOffice'][0]['Pincode'])
+
 
     #build the Dialogflow reply.
     reply = '{"fulfillmentMessages": [ {"text": {"text": ["The postal code of '+ city + ' is ' + Postalcode + '"] } } ]}'
